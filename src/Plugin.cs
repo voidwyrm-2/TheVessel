@@ -8,6 +8,7 @@ using RWCustom;
 using System.Runtime.CompilerServices;
 using static Nuktils.Utils;
 using static Nuktils.Extensions;
+using System.Xml.Linq;
 
 namespace TheVessel;
 
@@ -18,23 +19,16 @@ namespace TheVessel;
 [BepInPlugin(MOD_ID, "The Vessel", "0.1.0")]
 class Plugin : BaseUnityPlugin
 {
-    public static BepInEx.Logging.ManualLogSource Beplogger;
-
-    public static bool isInit = false;
-
     public const string MOD_ID = "nc.TheVessel";
 
     public static readonly SlugcatStats.Name Vessel = new("nc.vessel");
 
-    public static bool RotundWorldEnabled;
+    public static BepInEx.Logging.ManualLogSource Beplogger;
 
-    //public static bool ImprovedInputConfigEnabled;
-
-    public bool isFinished = true;
+    public static bool isInit = false;
 
 
     public static PlayerKeybind SlowTime;
-
     public static PlayerKeybind RecallSpear;
 
 
@@ -59,7 +53,9 @@ class Plugin : BaseUnityPlugin
 
         On.RainWorld.OnModsInit += RainWorld_SetControlDescriptions;
 
-        On.RainWorld.PostModsInit += RainWorld_PostModsInit;
+        //On.RainWorld.PostModsInit += RainWorld_PostModsInit;
+
+        On.Player.CanMaulCreature += Player_CanMaulCreature;
 
         On.Player.Update += Player_Update;
 
@@ -99,6 +95,13 @@ class Plugin : BaseUnityPlugin
                 poisonedCreatures.Add(self.grasps[graspIndex].grabbed as Creature, new CreaturePoison(Ticks.Second * 5, 2f));
         }
     }
+
+    private bool Player_CanMaulCreature(On.Player.orig_CanMaulCreature orig, Player self, Creature crit)
+    {
+        if (self.IsScug(Vessel) && !Options.canPoisonMaul.Value)
+            return false;
+        return orig.Invoke(self, crit);
+    }
     #endregion
 
     private void Spear_Thrown(On.Spear.orig_Thrown orig, Spear self, Creature thrownBy, Vector2 thrownPos, Vector2? firstFrameTraceFromPos, IntVector2 throwDir, float frc, bool eu)
@@ -131,30 +134,44 @@ class Plugin : BaseUnityPlugin
         if (self.IsScug(Vessel))
         {
             if (Options.slowTime.Value && self.IsPressed(SlowTime))
-                self.mushroomCounter = 10;
+                self.mushroomEffect = 20;
 
-            if (Options.recallSpear.Value && self.IsPressed(RecallSpear) && thrownSpears.TryGetValue(self, out Spear spear))
+            if (Options.recallSpear.Value && self.IsPressed(RecallSpear) && thrownSpears.TryGetValue(self, out var _))
             {
+                Vector2 prevPos = self.firstChunk.pos;
+
                 int freeHand = self.FreeHand();
-                if (self.GraspsHasType(AbstractPhysicalObject.AbstractObjectType.Spear) != -1 && freeHand != -1)
+
+                if (freeHand != -1 && self.GraspsHasType(AbstractPhysicalObject.AbstractObjectType.Spear) == -1)
                 {
-                    //spear.firstChunk.pos = self.firstChunk.pos;
-                    spear.thrownPos = self.bodyChunks[0].pos;
+                    if (self.room != null && self.graphicsModule != null)
+                    {
+                        self.room.AddObject(new ShockWave(prevPos, 50.0f, 0.8f, 10));
+                        self.room.AddObject(new ExplosionSpikes(self.room, prevPos, 10, 10.0f, 10, 10.0f, 80.0f, Color.white));
+
+                        var handPos = ((PlayerGraphics)self.graphicsModule).hands[freeHand].pos;
+
+                        self.room.AddObject(new ShockWave(handPos, 15.0f, 0.8f, 10));
+                        self.room.AddObject(new ExplosionSpikes(self.room, handPos, 10, 5.0f, 10, 10.0f, 40.0f, Color.white));
+
+                        self.room.PlaySound(SoundID.SS_AI_Give_The_Mark_Boom, prevPos, 1.0f, 3.5f);
+                    }
+
+                    self.AllGraspsLetGoOfThisObject(true);
                     self.SlugcatGrab(self, freeHand);
-                    //AbstractPhysicalObject x = new(self.room.world, AbstractPhysicalObject.AbstractObjectType.FlareBomb, null, self.coord, self.room.game.GetNewID());
-                    //var y = new FlareBomb(x, self.room.world);
-                    //y.StartBurn();
+                    thrownSpears.Remove(self);
                 }
             }
         }
     }
 
+    /*
     private void RainWorld_PostModsInit(On.RainWorld.orig_PostModsInit orig, RainWorld self)
     {
-        RotundWorldEnabled = ModManager.ActiveMods.Exists((ModManager.Mod mod) => mod.id == "willowwisp.bellyplus");
-        //ImprovedInputConfigEnabled = ModManager.ActiveMods.Exists((ModManager.Mod mod) => mod.id == "improved-input-config");
+        //RotundWorldEnabled = ModManager.ActiveMods.Exists((ModManager.Mod mod) => mod.id == "willowwisp.bellyplus");
         orig(self);
     }
+    */
 
     private void RainWorld_SetControlDescriptions(On.RainWorld.orig_OnModsInit orig, RainWorld self)
     {

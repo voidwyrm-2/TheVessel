@@ -1,21 +1,24 @@
 ﻿using Menu.Remix.MixedUI;
 using UnityEngine;
-using Menu;
+using static Nuktils.Options;
 
 namespace TheVessel;
 
 sealed class Options : OptionInterface
 {
-    //taken from https://github.com/Dual-Iron/no-damage-rng/blob/master/src/Plugin.cs
-    //thanks dual, you're a life saver
+    //taken from https://github.com/Dual-Iron/no-damage-rng/blob/master/src/Options.cs
 
     public static Configurable<bool> slowTime;
+    public static Configurable<int> mushroomEffect;
     public static Configurable<bool> recallSpear;
+    public static Configurable<bool> canPoisonMaul;
 
     public Options()
     {
-        slowTime = config.Bind("nc_SlowTime", true);
-        recallSpear = config.Bind("nc_RecallSpear", true);
+        slowTime = config.Bind("nc_slowTime", true);
+        mushroomEffect = config.Bind("nc_mushroomEffect", 10, new ConfigAcceptableRange<int>(1, 100));
+        recallSpear = config.Bind("nc_recallSpear", true);
+        canPoisonMaul = config.Bind("nc_canPoisonMaul", true);
     }
 
     public override void Initialize()
@@ -27,19 +30,24 @@ sealed class Options : OptionInterface
         var labelTitle = new OpLabel(20, 600 - 30, "The Vessel Options", true);
 
         var top = 200;
-        var labelSlowTime = new OpLabel(new(100, 590 - top), Vector2.zero, "Allow the slowing of time", FLabelAlignment.Left);
-        var checkSlowTime = new OpCheckBox(slowTime, new Vector2(20, (590 - top) - 6));
-
-        var labelRecallSpear = new OpLabel(new(100, 580 - top), Vector2.zero, "Allow for the recalling of the last spear you threw", FLabelAlignment.Left);
-        var checkRecallSpear = new OpCheckBox(recallSpear, new Vector2(20, (580 - top) - 6));
+        ILabeledPair[] labelCheckboxPairs =
+        {
+            new LabeledCheckboxPair("Slow time", "If true, allows The Vessel to slow time on a keypress", slowTime),
+            new LabeledIntSliderPair("Time slow effect magnitude", "How strong the time slow effect is", mushroomEffect, 100),
+            new LabeledCheckboxPair("Recall spear", "If true, allows The Vessel to recall her last thrown spear on a keypress", recallSpear),
+            new LabeledCheckboxPair("Poison maul", "If true, allows The Vessel to poison a creature by mauling it", canPoisonMaul)
+        };
 
         Tabs[0].AddItems(
-            labelTitle,
-
-            labelSlowTime,
-            checkSlowTime,
-            labelRecallSpear,
-            checkRecallSpear
+            labelTitle
         );
+
+        int yOffset = 0;
+        for (int i = 0; i < labelCheckboxPairs.Length; i++)
+        {
+            var res = labelCheckboxPairs[i].Generate(new(20, top + (i * 30) - yOffset));
+            yOffset += res.two;
+            Tabs[0].AddItems(res.one);
+        }
     }
 }
