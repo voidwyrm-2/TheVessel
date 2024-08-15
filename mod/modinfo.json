@@ -1,0 +1,22 @@
+﻿{
+	"id": "nc.TheVessel",
+	"name": "The Vessel",
+	"version": "1.0.0",
+	"authors": "Nuclear Pasta",
+	"description": "A experiment dump for custom Slugcat features",
+	"checksum_override": false,
+	"requirements": [
+		"slime-cubed.slugbase",
+		"improved-input-config",
+		"nc.Nuktils"
+	],
+	"requirements_names": [
+		"SlugBase",
+		"Improved Input Config",
+		"Nuktils"
+	],
+	"tags": [
+		"Custom Slugcat",
+		"Game Mechanics"
+	]
+}
