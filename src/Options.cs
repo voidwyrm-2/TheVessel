@@ -9,16 +9,28 @@ sealed class Options : OptionInterface
     //taken from https://github.com/Dual-Iron/no-damage-rng/blob/master/src/Options.cs
 
     public static Configurable<bool> slowTime;
-    public static Configurable<int> mushroomEffect;
+    //public static Configurable<int> mushroomEffect;
     public static Configurable<bool> recallSpear;
     public static Configurable<bool> canPoisonMaul;
+    public static Configurable<bool> noExplosiveOrElectricDamage;
+    public static Configurable<bool> electricuteLizardsOnGrab;
+    public static Configurable<bool> canShinespark;
+    public static Configurable<bool> useOldShinesparkControls;
+    public static Configurable<int> shinesparkChargeTime;
+    public static Configurable<bool> iCanTalk;
 
     public Options()
     {
         slowTime = config.Bind("nc_slowTime", true);
-        mushroomEffect = config.Bind("nc_mushroomEffect", 10, new ConfigAcceptableRange<int>(1, 100));
+        //mushroomEffect = config.Bind("nc_mushroomEffect", 10, new ConfigAcceptableRange<int>(1, 100));
         recallSpear = config.Bind("nc_recallSpear", true);
         canPoisonMaul = config.Bind("nc_canPoisonMaul", true);
+        noExplosiveOrElectricDamage = config.Bind("nc_noExplosiveOrElectricDamage", true);
+        electricuteLizardsOnGrab = config.Bind("nc_electricuteLizardsOnGrab", true);
+        canShinespark = config.Bind("nc_canShinespark", true);
+        useOldShinesparkControls = config.Bind("nc_useOldShinesparkControls", false);
+        shinesparkChargeTime = config.Bind("nc_shinesparkChargeTime", 1, new ConfigAcceptableRange<int>(0, 10));
+        iCanTalk = config.Bind("nc_iCanTalk", true);
     }
 
     public override void Initialize()
@@ -29,13 +41,19 @@ sealed class Options : OptionInterface
 
         var labelTitle = new OpLabel(20, 600 - 30, "The Vessel Options", true);
 
-        var top = 200;
+        var top = 550;
         ILabeledPair[] labelCheckboxPairs =
         {
             new LabeledCheckboxPair("Slow time", "If true, allows The Vessel to slow time on a keypress", slowTime),
-            new LabeledIntSliderPair("Time slow effect magnitude", "How strong the time slow effect is", mushroomEffect, 100),
+            //new LabeledIntSliderPair("Time slow effect magnitude", "How strong the time slow effect is", mushroomEffect, 100),
             new LabeledCheckboxPair("Recall spear", "If true, allows The Vessel to recall her last thrown spear on a keypress", recallSpear),
-            new LabeledCheckboxPair("Poison maul", "If true, allows The Vessel to poison a creature by mauling it", canPoisonMaul)
+            new LabeledCheckboxPair("Poison maul", "If true, allows The Vessel to poison a creature by mauling it", canPoisonMaul),
+            new LabeledCheckboxPair("No explosive or electric damage", "If true, prevents the The Vessel from taking damage from explosions or electrical hazards(zap coils, centipedes, etc)", noExplosiveOrElectricDamage),
+            new LabeledCheckboxPair("Electricute lizards on grab", "If true, lizards are electricuted when they grab The Vessel", electricuteLizardsOnGrab),
+            new LabeledCheckboxPair("Shinespark", "If true, The Vessel is able to shinespark", canShinespark),
+            new LabeledCheckboxPair("Use Old Shinespark Controls", "If true, you need to hold down to charge The Vessel's shinespark", useOldShinesparkControls),
+            new LabeledIntSliderPair("Shinespark charge time", "How long you have to hold the charge button, in seconds", shinesparkChargeTime, 25),
+            new LabeledCheckboxPair("Martha Speaks", "If true, allows The Vessel to talk", iCanTalk),
         };
 
         Tabs[0].AddItems(
@@ -45,9 +63,9 @@ sealed class Options : OptionInterface
         int yOffset = 0;
         for (int i = 0; i < labelCheckboxPairs.Length; i++)
         {
-            var res = labelCheckboxPairs[i].Generate(new(20, top + (i * 30) - yOffset));
-            yOffset += res.two;
-            Tabs[0].AddItems(res.one);
+            var res = labelCheckboxPairs[i].Generate(new(30, top - (i * 42) - yOffset));
+            yOffset += res.Item2;
+            Tabs[0].AddItems(res.Item1);
         }
     }
 }
