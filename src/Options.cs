@@ -15,7 +15,6 @@ sealed class Options : OptionInterface
     public static Configurable<bool> noExplosiveOrElectricDamage;
     public static Configurable<bool> electricuteLizardsOnGrab;
     public static Configurable<bool> canDash;
-    public static Configurable<bool> iCanTalk;
 
     public Options()
     {
@@ -26,7 +25,6 @@ sealed class Options : OptionInterface
         noExplosiveOrElectricDamage = config.Bind("nc_noExplosiveOrElectricDamage", true);
         electricuteLizardsOnGrab = config.Bind("nc_electricuteLizardsOnGrab", true);
         canDash = config.Bind("nc_canDash", true);
-        iCanTalk = config.Bind("nc_iCanTalk", true);
     }
 
     public override void Initialize()
@@ -47,7 +45,6 @@ sealed class Options : OptionInterface
             new LabeledCheckboxPair("No explosive or electric damage", "If true, prevents the The Vessel from taking damage from explosions or electrical hazards(zap coils, centipedes, etc)", noExplosiveOrElectricDamage),
             new LabeledCheckboxPair("Electricute lizards on grab", "If true, lizards are electricuted when they grab The Vessel", electricuteLizardsOnGrab),
             new LabeledCheckboxPair("Dash", "If true, The Vessel is able to dash", canDash),
-            new LabeledCheckboxPair("Martha Speaks", "If true, allows The Vessel to talk", iCanTalk),
         };
 
         Tabs[0].AddItems(

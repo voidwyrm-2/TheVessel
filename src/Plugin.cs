@@ -28,7 +28,6 @@ class Plugin : BaseUnityPlugin
     internal static PlayerKeybind SlowTime;
     internal static PlayerKeybind RecallSpear;
     internal static PlayerKeybind Dash;
-    internal static PlayerKeybind TalkyButton;
 
     public void OnEnable()
     {
@@ -39,7 +38,6 @@ class Plugin : BaseUnityPlugin
             SlowTime = PlayerKeybind.Register("nc_vessel:slowtime", "The Vessel", "Slow Time", KeyCode.T, KeyCode.JoystickButton3);
             RecallSpear = PlayerKeybind.Register("nc_vessel:recallspear", "The Vessel", "Recall Spear", KeyCode.Y, KeyCode.JoystickButton3);
             Dash = PlayerKeybind.Register("nc_vessel:dash", "The Vessel", "Dash", KeyCode.N, KeyCode.JoystickButton3);
-            TalkyButton = PlayerKeybind.Register("nc_vessel:talkybutton", "The Vessel", "Talky Button", KeyCode.V, KeyCode.JoystickButton3);
         }
         catch (Exception e)
         {
@@ -64,7 +62,6 @@ class Plugin : BaseUnityPlugin
                 SlowTime.Description = "The key held to slow time.";
                 RecallSpear.Description = "The key held to recall the last spear you threw.";
                 Dash.Description = "The key pressed to dash.";
-                TalkyButton.Description = "The button to talky.";
             }
         }
         catch (Exception ex)

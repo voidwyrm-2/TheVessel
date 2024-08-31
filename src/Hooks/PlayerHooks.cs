@@ -39,9 +39,6 @@ internal static class PlayerHooks
         {
             if (!dashCharges.TryGetValue(self, out var _))
                 dashCharges.Add(self, new(0));
-
-            if (!talkTimers.TryGetValue(self, out var _))
-                talkTimers.Add(self, new Timer(0));
         }
     }
 
@@ -124,17 +121,6 @@ internal static class PlayerHooks
                 self.mushroomCounter = 1;
             else if (self.mushroomCounter != 0)
                 self.mushroomCounter = 0;
-
-            if (Options.iCanTalk.Value && self.IsPressed(TalkyButton) && talkTimers.TryGetValue(self, out Timer talky))
-            {
-                talky.Tick();
-                if (talky.Ended())
-                {
-                    self.room.PlayRandomSoundInRoom(self.bodyChunks[0].pos, 2.0f, 1.0f, SoundID.SL_AI_Talk_1, SoundID.SL_AI_Talk_2, SoundID.SL_AI_Talk_3, SoundID.SL_AI_Talk_4, SoundID.SL_AI_Talk_5);
-                    talkTimers.Remove(self);
-                    talkTimers.Add(self, new(Intervals.Second * 2));
-                }
-            }
 
             {
                 if (Options.canDash.Value && self.IsPressed(Dash) && dashCharges.TryGetValue(self, out Timer dash) && dash.Ended())

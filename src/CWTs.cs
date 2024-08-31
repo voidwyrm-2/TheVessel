@@ -16,6 +16,5 @@ namespace TheVessel
         internal readonly static ConditionalWeakTable<AbstractPhysicalObject, Empty> spearsToRemoveFromCreatures = new(); // keeps track of spears that need to be removed from creatures
         internal readonly static ConditionalWeakTable<Creature, CreaturePoison> poisonedCreatures = new(); // keeps track of which creatures are poisoned
         internal readonly static ConditionalWeakTable<Player, Timer> dashCharges = new(); // keeps track of which players can dash
-        internal readonly static ConditionalWeakTable<Player, Timer> talkTimers = new(); // keeps track of player talk cooldowns
     }
 }
