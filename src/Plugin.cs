@@ -27,8 +27,7 @@ class Plugin : BaseUnityPlugin
 
     internal static PlayerKeybind SlowTime;
     internal static PlayerKeybind RecallSpear;
-    internal static PlayerKeybind ChargeShinespark;
-    internal static PlayerKeybind Shinespark;
+    internal static PlayerKeybind Dash;
     internal static PlayerKeybind TalkyButton;
 
     public void OnEnable()
@@ -39,8 +38,7 @@ class Plugin : BaseUnityPlugin
         {
             SlowTime = PlayerKeybind.Register("nc_vessel:slowtime", "The Vessel", "Slow Time", KeyCode.T, KeyCode.JoystickButton3);
             RecallSpear = PlayerKeybind.Register("nc_vessel:recallspear", "The Vessel", "Recall Spear", KeyCode.Y, KeyCode.JoystickButton3);
-            ChargeShinespark = PlayerKeybind.Register("nc_vessel:chargeShinespark", "The Vessel", "Charge Shinespark", KeyCode.B, KeyCode.JoystickButton3);
-            Shinespark = PlayerKeybind.Register("nc_vessel:shinespark", "The Vessel", "Shinespark", KeyCode.N, KeyCode.JoystickButton3);
+            Dash = PlayerKeybind.Register("nc_vessel:dash", "The Vessel", "Dash", KeyCode.N, KeyCode.JoystickButton3);
             TalkyButton = PlayerKeybind.Register("nc_vessel:talkybutton", "The Vessel", "Talky Button", KeyCode.V, KeyCode.JoystickButton3);
         }
         catch (Exception e)
@@ -65,8 +63,7 @@ class Plugin : BaseUnityPlugin
                 isInit = true;
                 SlowTime.Description = "The key held to slow time.";
                 RecallSpear.Description = "The key held to recall the last spear you threw.";
-                ChargeShinespark.Description = "The key held to charge the shinespark.";
-                Shinespark.Description = "The key pressed to use a charged shinespark.";
+                Dash.Description = "The key pressed to dash.";
                 TalkyButton.Description = "The button to talky.";
             }
         }

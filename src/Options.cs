@@ -14,9 +14,7 @@ sealed class Options : OptionInterface
     public static Configurable<bool> canPoisonMaul;
     public static Configurable<bool> noExplosiveOrElectricDamage;
     public static Configurable<bool> electricuteLizardsOnGrab;
-    public static Configurable<bool> canShinespark;
-    public static Configurable<bool> useOldShinesparkControls;
-    public static Configurable<int> shinesparkChargeTime;
+    public static Configurable<bool> canDash;
     public static Configurable<bool> iCanTalk;
 
     public Options()
@@ -27,9 +25,7 @@ sealed class Options : OptionInterface
         canPoisonMaul = config.Bind("nc_canPoisonMaul", true);
         noExplosiveOrElectricDamage = config.Bind("nc_noExplosiveOrElectricDamage", true);
         electricuteLizardsOnGrab = config.Bind("nc_electricuteLizardsOnGrab", true);
-        canShinespark = config.Bind("nc_canShinespark", true);
-        useOldShinesparkControls = config.Bind("nc_useOldShinesparkControls", false);
-        shinesparkChargeTime = config.Bind("nc_shinesparkChargeTime", 1, new ConfigAcceptableRange<int>(0, 10));
+        canDash = config.Bind("nc_canDash", true);
         iCanTalk = config.Bind("nc_iCanTalk", true);
     }
 
@@ -50,9 +46,7 @@ sealed class Options : OptionInterface
             new LabeledCheckboxPair("Poison maul", "If true, allows The Vessel to poison a creature by mauling it", canPoisonMaul),
             new LabeledCheckboxPair("No explosive or electric damage", "If true, prevents the The Vessel from taking damage from explosions or electrical hazards(zap coils, centipedes, etc)", noExplosiveOrElectricDamage),
             new LabeledCheckboxPair("Electricute lizards on grab", "If true, lizards are electricuted when they grab The Vessel", electricuteLizardsOnGrab),
-            new LabeledCheckboxPair("Shinespark", "If true, The Vessel is able to shinespark", canShinespark),
-            new LabeledCheckboxPair("Use Old Shinespark Controls", "If true, you need to hold down to charge The Vessel's shinespark", useOldShinesparkControls),
-            new LabeledIntSliderPair("Shinespark charge time", "How long you have to hold the charge button, in seconds", shinesparkChargeTime, 25),
+            new LabeledCheckboxPair("Dash", "If true, The Vessel is able to dash", canDash),
             new LabeledCheckboxPair("Martha Speaks", "If true, allows The Vessel to talk", iCanTalk),
         };
 

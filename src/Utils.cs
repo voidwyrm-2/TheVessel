@@ -22,8 +22,6 @@ namespace TheVessel
             self.spearmasterNeedle_fadecounter_max = other.spearmasterNeedle_fadecounter_max;
         }
 
-        public static bool IsShinesparkChargeKeyPressed(this Player player) => Options.useOldShinesparkControls.Value ? player.input[0].y < 0 : player.IsPressed(Plugin.ChargeShinespark);
-
         public static void PlayRandomSoundInRoom(this Room room, Vector2 pos, float vol, float pitch, params SoundID[] sounds)
         {
             if (room == null || sounds.Length == 0)

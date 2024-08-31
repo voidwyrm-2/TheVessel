@@ -32,18 +32,16 @@ internal static class PlayerHooks
         On.Creature.Grab += Creature_Grab;
     }
 
-    private const int playerTalkyDelay = Intervals.Second;
-
     private static void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world)
     {
         orig(self, abstractCreature, world);
         if (self.IsScug(Vessel))
         {
-            if (!shinesparkCharges.TryGetValue(self, out var _))
-                shinesparkCharges.Add(self, new(new Timer(Intervals.Second * 2), false));
+            if (!dashCharges.TryGetValue(self, out var _))
+                dashCharges.Add(self, new(0));
 
             if (!talkTimers.TryGetValue(self, out var _))
-                talkTimers.Add(self, new Timer(playerTalkyDelay, playerTalkyDelay, 1));
+                talkTimers.Add(self, new Timer(0));
         }
     }
 
@@ -134,94 +132,66 @@ internal static class PlayerHooks
                 {
                     self.room.PlayRandomSoundInRoom(self.bodyChunks[0].pos, 2.0f, 1.0f, SoundID.SL_AI_Talk_1, SoundID.SL_AI_Talk_2, SoundID.SL_AI_Talk_3, SoundID.SL_AI_Talk_4, SoundID.SL_AI_Talk_5);
                     talkTimers.Remove(self);
-                    talkTimers.Add(self, new Timer(playerTalkyDelay, playerTalkyDelay, 1));
+                    talkTimers.Add(self, new(Intervals.Second * 2));
                 }
             }
 
-            if (Options.canShinespark.Value)
             {
-                if (self.IsShinesparkChargeKeyPressed())
+                if (Options.canDash.Value && self.IsPressed(Dash) && dashCharges.TryGetValue(self, out Timer dash) && dash.Ended())
                 {
-                    if (shinesparkCharges.TryGetValue(self, out Tuple<Timer, bool> shineCharge) && !shineCharge.Item2)
+                    //var pastPos = self.bodyChunks[0].pos;
+
+                    float num3 = self.input[0].x;
+                    float num4 = self.input[0].y;
+                    /*
+                    while (num3 == 0f && num4 == 0f)
                     {
-                        shineCharge.Item1.Tick();
-                        if (shineCharge.Item1.Ended())
-                        {
-                            shinesparkCharges.Remove(self);
-                            shinesparkCharges.Add(self, new(new Timer(Intervals.Second * 2), true));
-                            //self.room.AddObject(new ShockWave(self.bodyChunks[0].pos, 50.0f, 0.6f, (int)(Intervals.Second * 3.5f)));\
-                            for (int i = 0; i < 10; i++)
-                                self.room.AddObject(new VoidParticle(self.bodyChunks[0].pos + new Vector2(UnityEngine.Random.value * 1.5f, UnityEngine.Random.value * 1.5f), new(UnityEngine.Random.value, -(UnityEngine.Random.value + 0.5f)), 2f));
-                            self.room.PlaySound(SoundID.Death_Lightning_Spark_Spontaneous, self.bodyChunks[0].pos, 3.0f, 3.5f);
-                        }
-                    }/*
-                else
-                {
-                    throw new Exception("Vessel instance does not have a shinespark timer");
-                }*/
-                }
-                else
-                {
-                    if (shinesparkCharges.TryGetValue(self, out Tuple<Timer, bool> shineCharge) && shineCharge.Item1.Ticks > 0)
-                    {
-                        shinesparkCharges.Remove(self);
-                        shinesparkCharges.Add(self, new(new Timer(Intervals.Second * Options.shinesparkChargeTime.Value), shineCharge.Item2));
-                    }/*
-                else
-                {
-                    throw new Exception("Vessel instance does not have a shinespark timer");
-                }*/
-                }
-
-                if (Options.canShinespark.Value && self.IsPressed(Shinespark))
-                {
-                    if (shinesparkCharges.TryGetValue(self, out Tuple<Timer, bool> shineCharge))
-                    {
-                        if (shineCharge.Item2)
-                        {
-                            //var pastPos = self.bodyChunks[0].pos;
-
-                            float num3 = self.input[0].x;
-                            float num4 = self.input[0].y;
-                            /*
-                            while (num3 == 0f && num4 == 0f)
-                            {
-                                num3 = (((double)UnityEngine.Random.value <= 0.33) ? 0 : (((double)UnityEngine.Random.value <= 0.5) ? 1 : -1));
-                                num4 = (((double)UnityEngine.Random.value <= 0.33) ? 0 : (((double)UnityEngine.Random.value <= 0.5) ? 1 : -1));
-                            }
-                            */
-
-                            self.room.PlaySound(SoundID.Vulture_Jet_LOOP, self.bodyChunks[0].pos, 2.0f, 3.5f);
-                            self.room.AddObject(new ExplosionSpikes(self.room, self.bodyChunks[0].pos, 10, 5.0f, 10, 10.0f, 40.0f, Color.white));
-
-                            for (int i = 0; i < 5; i++)
-                                self.room.AddObject(new LightningBolt(self.bodyChunks[0].pos, self.bodyChunks[0].pos + new Vector2(UnityEngine.Random.value, UnityEngine.Random.value), 0, 1f, 2f));
-
-
-                            self.bodyChunks[0].vel.x = 24f * num3;
-                            self.bodyChunks[0].vel.y = 24f * num4;
-                            self.bodyChunks[1].vel.x = 23f * num3;
-                            self.bodyChunks[1].vel.y = 23f * num4;
-
-                            self.room.PlaySound(SoundID.Vulture_Jet_LOOP, self.bodyChunks[0].pos, 2.0f, 3.5f);
-                            self.room.AddObject(new ExplosionSpikes(self.room, self.bodyChunks[0].pos, 10, 5.0f, 10, 10.0f, 40.0f, Color.white));
-
-                            for (int i = 0; i < 5; i++)
-                                self.room.AddObject(new LightningBolt(self.bodyChunks[0].pos, self.bodyChunks[0].pos + new Vector2(UnityEngine.Random.value * 10f, UnityEngine.Random.value * 10f), 0, 1f, 2f));
-
-                            //self.room.AddObject(new LightningMachine.Impact(self.firstChunk.pos, 0.5f, Color.red, true));
-
-                            for (int i = 0; i < 5; i++)
-                                self.room.AddObject(new Spark(self.bodyChunks[0].pos,
-                                    new(UnityEngine.Random.value * (UnityEngine.Random.value * 10f),
-                                    UnityEngine.Random.value * (UnityEngine.Random.value * 10f)),
-                                    new(0.3f, 0.3f, 1f, 1f), null, 10, 20));
-
-                            shinesparkCharges.Remove(self);
-                            shinesparkCharges.Add(self, new(new Timer(Intervals.Second * Options.shinesparkChargeTime.Value), false));
-                        }
+                        num3 = (((double)UnityEngine.Random.value <= 0.33) ? 0 : (((double)UnityEngine.Random.value <= 0.5) ? 1 : -1));
+                        num4 = (((double)UnityEngine.Random.value <= 0.33) ? 0 : (((double)UnityEngine.Random.value <= 0.5) ? 1 : -1));
                     }
+                    */
+
+                    self.room.PlaySound(SoundID.Vulture_Jet_LOOP, self.bodyChunks[0].pos, 2.0f, 3.5f);
+                    self.room.AddObject(new ExplosionSpikes(self.room, self.bodyChunks[0].pos, 10, 5.0f, 10, 10.0f, 40.0f, Color.white));
+
+                    //for (int i = 0; i < 5; i++)
+                    //    self.room.AddObject(new LightningBolt(self.bodyChunks[0].pos, self.bodyChunks[0].pos + new Vector2(UnityEngine.Random.value, UnityEngine.Random.value), 0, 1f, 2f));
+
+                    var prevPos = self.bodyChunks[0].pos;
+
+                    self.bodyChunks[0].vel.x = 24f * num3;
+                    self.bodyChunks[0].vel.y = 24f * num4;
+                    self.bodyChunks[1].vel.x = 23f * num3;
+                    self.bodyChunks[1].vel.y = 23f * num4;
+
+                    self.room.PlaySound(SoundID.Vulture_Jet_LOOP, self.bodyChunks[0].pos, 2.0f, 3.5f);
+                    self.room.AddObject(new ExplosionSpikes(self.room, self.bodyChunks[0].pos, 10, 5.0f, 10, 10.0f, 40.0f, Color.white));
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        self.room.AddObject(new LightningBolt(self.firstChunk.pos, prevPos, 0, 0.4f, 0.35f, 0.64f, 0.64f, true)
+                        {
+                            intensity = 1f,
+                            color = Color.white
+                        });
+                    }
+
+                    //self.room.AddObject(new LightningMachine.Impact(self.firstChunk.pos, 0.5f, Color.red, true));
+
+                    for (int i = 0; i < 5; i++)
+                        self.room.AddObject(new Spark(self.bodyChunks[0].pos,
+                            new(UnityEngine.Random.value * (UnityEngine.Random.value * 10f),
+                            UnityEngine.Random.value * (UnityEngine.Random.value * 10f)),
+                            new(0.3f, 0.3f, 1f, 1f), null, 10, 20));
+
+                    dashCharges.Remove(self);
+                    dashCharges.Add(self, new(15));
                 }
+            }
+
+            {
+                if (Options.canDash.Value && dashCharges.TryGetValue(self, out Timer dash))
+                    dash.Tick();
             }
 
             if (Options.recallSpear.Value && self.IsPressed(RecallSpear) && thrownSpears.TryGetValue(self, out Spear spear) && !self.inShortcut)
